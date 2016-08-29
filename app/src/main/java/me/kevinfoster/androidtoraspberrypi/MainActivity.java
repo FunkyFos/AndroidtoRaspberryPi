@@ -9,24 +9,32 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.ParcelUuid;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.bluetooth.BluetoothSocket;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private int clicknum; //number of clicks
     private BluetoothAdapter BA;
     private Set<BluetoothDevice> pairedDevices;
     ListView lv;
-
+    private BluetoothSocket Connected;
     private NotificationManager mManager;
+    private BluetoothDevice Scraw;
+    private boolean foundDevice;
 
 
 
@@ -41,11 +49,19 @@ private Button sendButton;
                 activity();
                             }
         });
-        clicknum = 0;
+//        Scraw =
+//        clicknum = 0;
         runBluetooth();//Bluetooth optimization for connecting with Raspberry Pi
         setVolumeControlStream(3);
         MediaPlayer startup = MediaPlayer.create(this,R.raw.startup);
         startup.start();
+
+        if (foundDevice) {
+            Toast.makeText(getApplicationContext(),"Connection Successful",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(),"Connection Failed",Toast.LENGTH_SHORT).show();
+        }
 
 
 
@@ -94,6 +110,7 @@ private Button sendButton;
     private void runBluetooth(){ //ToDo: ListView items are not clickable
         lv = (ListView)findViewById(R.id.listView);
         BA = BluetoothAdapter.getDefaultAdapter();
+        foundDevice = false;
         Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(turnOn,0);
         pairedDevices = BA.getBondedDevices();
@@ -103,6 +120,20 @@ private Button sendButton;
         Toast.makeText(getApplicationContext(),"Showing Paired Devices",Toast.LENGTH_SHORT).show();
         final ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
         lv.setAdapter(adapter);
+        for (BluetoothDevice bt: pairedDevices)
+            if (bt.getName().equals("SCH-I535")){
+                for (ParcelUuid x : bt.getUuids()) {
+
+
+                    try {
+                        Scraw.createRfcommSocketToServiceRecord(x.getUuid()).connect();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                foundDevice = true;
+            }
+
         //Todo: ListView has been given clickable - no onclick implementation
     }
 

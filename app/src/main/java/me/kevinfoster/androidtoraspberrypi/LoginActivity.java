@@ -50,6 +50,12 @@ public class LoginActivity extends AppCompatActivity {
         clicknum = 0;
         running = false;
         setVolumeControlStream(3);
+//        if () {
+//
+//        }
+//        else {
+//            Toast.makeText(getApplicationContext(),"Connection Failed",Toast.LENGTH_SHORT).show();
+//        }
         test = new SpassFingerprint(this);
         runThumbPrint();
 
@@ -68,6 +74,9 @@ public class LoginActivity extends AppCompatActivity {
                 if (test.getIdentifiedFingerprintIndex() > 0) {
                     clicknum++;
                     runPush();
+                    Intent q = new Intent(LoginActivity.this, SSHActivity.class);
+                    startActivity(q);
+                    //TODO: Add link to SSH activity.
                 }
                 //else if(i=SpassFingerprint.STATUS_TIMEOUT_FAILED)
 //                else {
